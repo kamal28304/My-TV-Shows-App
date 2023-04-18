@@ -8,25 +8,19 @@ import {loadShowCastAction} from "../actions/showCast"
 
 import {showsMapSelector} from "../selectors/Shows"
 import {showCastSelector} from "../selectors/showCast"
-
+import LoadingSpinner from "../Components/LoadingSpinner"
 import {connect} from "react-redux"
 import Show from "../models/Show"
 import {ShowCast} from "../models/showCast"
 import {IoArrowBack} from "react-icons/io5"
 
+type OwnProps= WithRouterProps
 
-
-type ShowDetailPageProps = {
-show: Show,
-cast: ShowCast[],
-loadShowDeatil:(id:number)=>void,
-loadCast:(id:number)=>void
-} & WithRouterProps
+type ShowDetailPageProps = ReduxProps & OwnProps
 
 const placeholderImage="https://www.dovercourt.org/wp-content/uploads/2019/11/610-6104451_image-placeholder-png-user-profile-placeholder-image-png.jpg"
 
 const ShowDetailPage: FC<ShowDetailPageProps> = ({ params,show,cast,loadShowDetail,loadCast}) => {
-console.log(cast)
   const show_id= +params.show_id
 
   useEffect(()=>{
@@ -34,8 +28,11 @@ console.log(cast)
       loadCast(show_id)  
      },[show_id])
 
+  if (!show){
+    return <LoadingSpinner />
+  }
   return (
-    <div className="mt-2">
+    <div className="mt-2 p-3">
       
       <h2 className="text-4xl font-semibold tracking-wide">{show?.name}</h2>
       <div className="flex space-x-3 my-2 bg-gray-300 p-2 rounded-sm">
@@ -51,11 +48,9 @@ console.log(cast)
           className="object-cover object-center w-full rounded-t-md h-72"
         />
         <div className="ml-2">
-          <p>
-            {show?.summary}
-          </p>
+          <p dangerouslySetInnerHTML={{__html:show?.summary}}></p>
           <p className="mt-2 text-lg font-bold border border-gray-700 rounded-md px-2 py-1 max-w-max">
-            Rating: <span className="text-gray-700">{show?.rating?.average || 0}</span>
+            Rating: <span className="text-gray-700">{show?.rating?.average/10 || 0}</span>
           </p>
         </div>
       </div>
@@ -73,7 +68,7 @@ name={c.name}/>) : <div className="text-2xl font-semibold "> No Cast Available</
     </div>
   );
 };
-const mapStateToProps=(state:State,ownProps:any)=>{
+const mapStateToProps=(state:State,ownProps:OwnProps)=>{
   const show_id= +ownProps.params.show_id
   return {
   show: showsMapSelector(state)[show_id],
@@ -85,5 +80,9 @@ const mapDispatchToProps = {
   loadCast: loadShowCastAction,
 };
 
+const connector=connect(mapStateToProps,mapDispatchToProps)
 
-export default withRouter(connect(mapStateToProps,mapDispatchToProps)(memo(ShowDetailPage)));
+type ReduxProps=ConnectedProps<typeof connector>
+
+
+export default withRouter(connector(memo(ShowDetailPage)));

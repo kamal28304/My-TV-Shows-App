@@ -10,6 +10,7 @@ export function* fetchShows(action: Action): Generator<any, any, any> {
 
 export function* fetchSingleShow(action: Action): Generator<any, any, any> {
   const show = yield call(showDetail, action.payload);
+  console.log("show in saga",show)
 
   yield put(showDetailLoadedAction(show));
 }

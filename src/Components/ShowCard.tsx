@@ -1,9 +1,10 @@
 import {FC} from "react"
 import { Link } from "react-router-dom";
 import Show from "../models/show"
+import Avatar from "./Avatar"
 
 type ShowcardProps={
-  show: Show
+  show: any
 }
 
 const ShowCard:FC<ShowcardProps>=({show})=> {
@@ -19,17 +20,19 @@ const ShowCard:FC<ShowcardProps>=({show})=> {
       <div className="flex flex-col justify-between p-6 space-y-8">
         <div className="space-y-2">
           <h2 className="text-3xl font-semibold tracking-wide">{show.name}</h2>
-          <p>
-            {show.summary}
-          </p>
+          <p dangerouslySetInnerHTML={{__html: show.summary}}></p>
         </div>
         <Link
           to={"/show/" + show.id}
-          className="flex items-center justify-center w-full p-3 font-semibold tracking-wide rounded-md"
-        >
+          className="flex items-center justify-center w-full p-3 font-semibold tracking-wide rounded-md">
           View Details
         </Link>
+        <Avatar cast={show.cast}/>
+          
+    
+    
       </div>
+      
     </div>
   );
 }

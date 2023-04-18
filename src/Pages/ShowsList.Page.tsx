@@ -3,26 +3,30 @@ import SearchBar from "../Components/SearchBar";
 import ShowCard from "../Components/ShowCard";
 import {searchShows} from "../api"
 import {showsLoadedAction,showsQueryChangeAction} from "../actions/Shows"
-import {connect} from "react-redux"
-import {showsQuerySelector,showsLoadedSelector} from "../selectors/Shows"
+import {connect,ConnectedProps} from "react-redux"
+import {showsQuerySelector,showsLoadedSelector,showsLoadingSelector} from "../selectors/Shows"
 import Show from "../models/Show"
+import LoadingSpinner from "../Components/LoadingSpinner"
 
 
 
-type ShowListPageProps={
-  query:string;
-  shows: Show[];
-  showsQueryChange:(query:string)=>void;
+
+type ShowListPageProps = ReduxProps
   
-}
 
- const ShowListPage:FC<ShowListPageProps>=({shows,query,showsQueryChange})=> {
+ const ShowListPage:FC<ShowListPageProps>=({shows,query,showsQueryChange,loading})=> {
+   console.log("shows in list page",shows)
+   
   
   return (
     <div className="mt-2">
-      <SearchBar onChange={(event)=>showsQueryChange(event.target.value)} />
+      <div  className="flex items-center justify-center space-x-4">
+      <SearchBar 
+        onChange={(event)=>showsQueryChange(event.target.value)} />
+        {loading && <LoadingSpinner className="text-3xl"/>}
+        </div>
       <div className="flex flex-wrap justify-center">
-        {(shows.length>0 ) ?shows.map((s)=> <ShowCard key={s.id} show={s}/>):<div className="text-2xl mt-2 font-bold text-indigo-500">search for your favorite movies and web series</div>}
+        {(shows) ?shows.map((s)=> <ShowCard key={s.id} show={s}/>):<div className="text-2xl mt-2 font-bold text-indigo-500">search for your favorite movies and web series</div>}
       </div>
      
     </div>
@@ -30,13 +34,18 @@ type ShowListPageProps={
 }
 const mapDispatchToProps={
   showsQueryChange:showsQueryChangeAction,
+
 }
 
 const mapStateToProps=(state:State)=>{
   return {
     query:showsQuerySelector(state),
-    shows:showsLoadedSelector(state)
+    shows:showsLoadedSelector(state),
+    loading:showsLoadingSelector(state)
   }
 }
+const connector=connect(mapStateToProps,mapDispatchToProps)
 
-export default connect(mapStateToProps,mapDispatchToProps)(memo(ShowListPage));
+type ReduxProps= ConnectedProps<typeof connector>
+
+export default connector(memo(ShowListPage));
